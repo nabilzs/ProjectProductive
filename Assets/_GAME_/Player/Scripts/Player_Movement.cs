@@ -8,7 +8,6 @@ public class Player_Movement : MonoBehaviour
     // region Editor Data
     [Header("Movement Attaributes")]
     [SerializeField] float _moveSpeed = 50f;
-    [SerializeField] float gridSize = 1f;
 
     [Header("Dependencies")]
     [SerializeField] Rigidbody2D _rb;

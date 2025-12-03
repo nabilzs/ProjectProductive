@@ -1,73 +1,79 @@
 using UnityEngine;
-using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 
 public class Game_Manager : MonoBehaviour
 {
     [Header("Dependencies")]
-    [SerializeField] private Object_Movement[] allObjects;  
+    [SerializeField] private PointsCounter pointsCounter;
 
-    [Header("Win Condition")]
-    private int totalGoalsRequired = 0;
-    private int goalsAchieved = 0;
+    [Header("Win Settings")]
+    [SerializeField] private bool autoNextLevel = true;        // BARU: aktifkan ini!
+    [SerializeField] private float nextLevelDelay = 1f;        // Tunggu 2 detik sebelum pindah
+    [SerializeField] private bool showWinPanel = true;         // Nanti bisa muncul UI "Level Complete!"
+
     private bool levelComplete = false;
 
     private void Awake()
     {
-        // PASTIKAN HANYA 1 Game_Manager di scene
-        if (FindObjectsOfType<Game_Manager>().Length > 1)
-        {
-            Destroy(gameObject);
-            return;
-        }
-        DontDestroyOnLoad(gameObject); // Optional: persist ke scene lain
+        // Singleton
+        Game_Manager[] managers = FindObjectsOfType<Game_Manager>();
+        if (managers.Length > 1) { Destroy(gameObject); return; }
     }
 
     private void Start()
     {
-        if (allObjects.Length == 0)
-        {
-            allObjects = FindObjectsOfType<Object_Movement>();
-        }
-        
-        totalGoalsRequired = allObjects.Length;
-        
-        // FIXED: Debug.Log HANYA 1x
-        Debug.Log($"🔧 Game Manager Initialized - Total objects: {totalGoalsRequired}", gameObject);
+        if (pointsCounter == null)
+            pointsCounter = FindObjectOfType<PointsCounter>();
     }
 
     private void Update()
     {
-        if (levelComplete) return; // Stop checking kalau udah win
-        
-        goalsAchieved = 0;
-        foreach (Object_Movement obj in allObjects)
-        {
-            if (obj != null && obj.IsOnGoal)
-            {
-                goalsAchieved++;
-            }
-        }
+        if (levelComplete) return;
 
-        if (goalsAchieved == totalGoalsRequired && totalGoalsRequired > 0)
+        if (pointsCounter != null && pointsCounter.IsLevelComplete())
         {
             WinLevel();
+        }
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            RestartCurrentLevel();
         }
     }
 
     private void WinLevel()
     {
+        if (levelComplete) return;
         levelComplete = true;
-        Debug.Log("🎉 LEVEL COMPLETE! 🎉", gameObject);
-        // Time.timeScale = 0f;
-        
-        // Restart level (atau Next Level)
-        Invoke("RestartLevel", 2f);
+
+        Debug.Log($"LEVEL {SceneManager.GetActiveScene().buildIndex + 1} COMPLETE!");
+
+        // Optional: Play sound, particle, animasi player menang, dll
+
+        if (autoNextLevel)
+        {
+            Invoke(nameof(LoadNextLevel), nextLevelDelay);
+        }
     }
 
-    private void RestartLevel()
+    // DIPANGGIL OTOMATIS setelah delay
+    private void LoadNextLevel()
     {
-        Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        int nextIndex = SceneManager.GetActiveScene().buildIndex + 1;
+
+        // Kalau masih ada level berikutnya
+        if (nextIndex < SceneManager.sceneCountInBuildSettings)
+        {
+            SceneManager.LoadScene(nextIndex);
+        }
+        else
+        {
+            Debug.Log("SEMUA LEVEL SELESAI! Kembali ke Menu.");
+            SceneManager.LoadScene(0); // atau scene Menu utama kamu
+        }
     }
+
+    // Fungsi buat tombol UI (nanti kalau mau manual)
+    public void LoadNextLevelManual() => LoadNextLevel();
+    public void RestartCurrentLevel() => SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 }

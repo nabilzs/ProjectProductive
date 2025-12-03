@@ -1,33 +1,43 @@
 using UnityEngine;
-using UnityEngine.Tilemaps;
 
 [SelectionBase]
 public class Object_Movement : MonoBehaviour
 {
     [Header("Goal Detection")]
-    [SerializeField] private bool isOnGoal = false;
-    public bool IsOnGoal => isOnGoal;
+    [SerializeField] private LayerMask goalLayerMask = 1 << 5; // Sesuaikan layer Goal kamu
 
-    [SerializeField] private LayerMask goalLayerMask = 1 << 5; // Layer "Goal"
+    private bool isOnGoal = false;
+    private PointsCounter pointsCounter;
+
+    private void Awake()
+    {
+        pointsCounter = FindObjectOfType<PointsCounter>();
+
+        if (pointsCounter == null)
+            Debug.LogError("[Object_Movement] PointsCounter TIDAK ADA di scene! Buat Canvas → UI → Text - TextMeshPro, tambah script PointsCounter.cs", this);
+    }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // FIXED: Cek spesifik TilemapCollider2D + Layer/Tag
-        if (other.GetComponent<TilemapCollider2D>() != null && 
-            ((1 << other.gameObject.layer) == goalLayerMask || other.CompareTag("Goal")))
+        bool isGoal = ((goalLayerMask.value & (1 << other.gameObject.layer)) != 0) || other.CompareTag("Goal");
+
+        if (isGoal && !isOnGoal)
         {
             isOnGoal = true;
-            Debug.Log($"✅ {gameObject.name} ON GOAL!", gameObject);
+            pointsCounter?.AddPoint();        // PASTI DIPANGGIL
+            Debug.Log($"MASUK GOAL → {gameObject.name}");
         }
     }
 
     private void OnTriggerExit2D(Collider2D other)
     {
-        if (other.GetComponent<TilemapCollider2D>() != null && 
-            ((1 << other.gameObject.layer) == goalLayerMask || other.CompareTag("Goal")))
+        bool isGoal = ((goalLayerMask.value & (1 << other.gameObject.layer)) != 0) || other.CompareTag("Goal");
+
+        if (isGoal && isOnGoal)
         {
             isOnGoal = false;
-            Debug.Log($"❌ {gameObject.name} OFF GOAL!", gameObject);
+            pointsCounter?.RemovePoint();
+            Debug.Log($"KELUAR GOAL → {gameObject.name}");
         }
     }
 }
