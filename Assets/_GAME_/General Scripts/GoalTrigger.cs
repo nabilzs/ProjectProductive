@@ -3,37 +3,24 @@ using UnityEngine.SceneManagement;
 
 public class GoalTrigger : MonoBehaviour
 {
-    [Header("Level yang akan dibuka")]
-    [SerializeField] private int targetLevelIndex = 2; // isi sesuai Build Index!
-
-    [Header("Visual")]
-    [SerializeField] private Sprite unlockedSprite;
+    [Header("Scene Index")]
+    [SerializeField] private int targetLevelIndex;
 
     private bool alreadyTriggered = false;
-    private SpriteRenderer sr;
 
-    private void Awake()
-    {
-        sr = GetComponent<SpriteRenderer>();
-    }
-
-    // DIPANGGIL OTOMATIS oleh Object_Movement saat crate masuk
-    public void OnCrateEnteredGoal()
+    private void OnTriggerEnter2D(Collider2D other)
     {
         if (alreadyTriggered) return;
 
-        alreadyTriggered = true;
-        Debug.Log($"LEVEL SELECTOR: Goal tercapai! Pindah ke scene index {targetLevelIndex}");
+        if (other.GetComponent<Object_Movement>() != null)
+        {
+            alreadyTriggered = true;
+            Debug.Log($"MASUK GOAL → pindah ke scene index {targetLevelIndex}");
 
-        // Ganti visual
-        if (sr != null && unlockedSprite != null)
-            sr.sprite = unlockedSprite;
+            PlayerPrefs.SetInt("Unlocked_" + targetLevelIndex, 1);
+            PlayerPrefs.Save();
 
-        // Simpan unlock permanen
-        PlayerPrefs.SetInt("Unlocked_Level_" + targetLevelIndex, 1);
-        PlayerPrefs.Save();
-
-        // Pindah level
-        SceneManager.LoadScene(targetLevelIndex);
+            SceneManager.LoadScene(targetLevelIndex);
+        }
     }
 }

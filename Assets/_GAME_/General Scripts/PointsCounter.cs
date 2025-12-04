@@ -79,10 +79,11 @@ public class PointsCounter : MonoBehaviour
 
         switch (sceneIndex)
         {
-            case 0: return "Level Selected";
-            case 1: return "Level Tutorial";
-            case 2: return "Level 1";
-            case 3: return "Level 2";
+            case 0: return "Main Menu";
+            case 1: return "Level Selected";
+            case 2: return "Level Tutorial";
+            case 3: return "Level 1";
+            case 4: return "Level 2";
             // Tambah terus sesuai scene kamu
             
             default: return $"Level {sceneIndex}";
