@@ -3,7 +3,9 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
-  tags: []
+  tags:
+  - Log
+  - Goal
   layers:
   - Default
   - TransparentFX
@@ -11,11 +13,11 @@ TagManager:
   - 
   - Water
   - UI
+  - Goal
   - 
   - 
-  - 
-  - 
-  - 
+  - Object
+  - Player
   - 
   - 
   - 
@@ -52,6 +54,12 @@ TagManager:
     locked: 0
   - name: Building
     uniqueID: 2114787651
+    locked: 0
+  - name: Goal
+    uniqueID: 3209105101
+    locked: 0
+  - name: Character
+    uniqueID: 608348881
     locked: 0
   m_RenderingLayers:
   - Default
