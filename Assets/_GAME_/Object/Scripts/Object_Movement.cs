@@ -1,10 +1,15 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 [SelectionBase]
 public class Object_Movement : MonoBehaviour
 {
     [Header("Goal Detection")]
-    [SerializeField] private LayerMask goalLayerMask = 1 << 5; // Sesuaikan layer Goal kamu
+    [SerializeField] private LayerMask goalLayerMask = 1 << 5; // Layer "Goal" atau "SelectorGoal"
+
+    // BARU: Event yang dipanggil saat masuk/keluar goal
+    public UnityEvent OnEnteredGoal = new UnityEvent();
+    public UnityEvent OnExitedGoal  = new UnityEvent();
 
     private bool isOnGoal = false;
     private PointsCounter pointsCounter;
@@ -12,9 +17,6 @@ public class Object_Movement : MonoBehaviour
     private void Awake()
     {
         pointsCounter = FindObjectOfType<PointsCounter>();
-
-        if (pointsCounter == null)
-            Debug.LogError("[Object_Movement] PointsCounter TIDAK ADA di scene! Buat Canvas → UI → Text - TextMeshPro, tambah script PointsCounter.cs", this);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -24,8 +26,11 @@ public class Object_Movement : MonoBehaviour
         if (isGoal && !isOnGoal)
         {
             isOnGoal = true;
-            pointsCounter?.AddPoint();        // PASTI DIPANGGIL
+            pointsCounter?.AddPoint();
             Debug.Log($"MASUK GOAL → {gameObject.name}");
+
+            // INI YANG BARU: kasih tahu semua yang mendengarkan (termasuk GoalTrigger)
+            OnEnteredGoal?.Invoke();
         }
     }
 
@@ -38,6 +43,14 @@ public class Object_Movement : MonoBehaviour
             isOnGoal = false;
             pointsCounter?.RemovePoint();
             Debug.Log($"KELUAR GOAL → {gameObject.name}");
+
+            OnExitedGoal?.Invoke();
         }
+    }
+
+    // Bonus: biar bisa lihat di inspector
+    private void Reset()
+    {
+        goalLayerMask = 1 << LayerMask.NameToLayer("Goal");
     }
 }
