@@ -7,9 +7,9 @@ public class Game_Manager : MonoBehaviour
     [SerializeField] private PointsCounter pointsCounter;
 
     [Header("Win Settings")]
-    [SerializeField] private bool autoNextLevel = true;        // BARU: aktifkan ini!
-    [SerializeField] private float nextLevelDelay = 1f;        // Tunggu 2 detik sebelum pindah
-    [SerializeField] private bool showWinPanel = true;         // Nanti bisa muncul UI "Level Complete!"
+    [SerializeField] private bool autoNextLevel = true;
+    [SerializeField] private float nextLevelDelay = 1f;
+    [SerializeField] private bool showWinPanel = true;
 
     private bool levelComplete = false;
 
